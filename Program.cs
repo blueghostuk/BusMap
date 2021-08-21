@@ -1,6 +1,7 @@
 using Azure.Identity;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using Microsoft.Extensions.Hosting;
 using System;
 
@@ -42,12 +43,9 @@ namespace BusMap
                       options.Connect(endpoint, new DefaultAzureCredential())
                           .ConfigureRefresh(refresh =>
                           {
-                              // All configuration values will be refreshed if the sentinel key changes.
-                              refresh.Register("TestApp:Settings:Sentinel", refreshAll: true);
-                        }).UseFeatureFlags((options) =>
-                        {
-                          options.Label = context.HostingEnvironment.ToString();
-                        });
+                            // All configuration values will be refreshed if the sentinel key changes.
+                            refresh.Register("TestApp:Settings:Sentinel", refreshAll: true);
+                          }).Select(KeyFilter.Any, context.HostingEnvironment.EnvironmentName);
                     });
               }
             })
